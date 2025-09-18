@@ -33,7 +33,7 @@ jobs:
         with:
           source-directory: 'output'
 
-          destination-github-username: TopiaYu
+          destination-github-username: Hyunbara
 
           destination-repository-name: nomadia
 
