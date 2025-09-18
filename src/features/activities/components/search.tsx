@@ -71,10 +71,10 @@ const Search: React.FC<SearchProps> = ({
   const style = searchVariant.main;
 
   const dropdownBtnClass =
-    'flex lg:w-[20rem] md:w-[6rem] items-center justify-between rounded txt-14-medium text-gray-700 bg-transparent hover:bg-gray-50 cursor-pointer';
+    'flex items-center justify-center rounded-full txt-14-medium text-gray-700 bg-transparent hover:bg-gray-50 cursor-pointer px-3 py-2 min-h-[2.4rem]';
 
   const dropdownMenuClass =
-    'mt-2 w-full bg-white rounded-xl shadow-lg border border-gray-100 p-2 space-y-2 txt-14-medium';
+    'mt-2 w-[13rem] bg-white rounded-xl shadow-lg border border-gray-100 p-2 space-y-2 txt-14-medium';
 
   const optionBtnClass =
     'w-full px-4 py-3 rounded-lg text-left txt-12-medium bg-white hover:bg-sub cursor-pointer transition-all duration-200';
@@ -83,27 +83,34 @@ const Search: React.FC<SearchProps> = ({
     <div className={style.wrapper}>
       <p className={style.title}>무엇을 체험하고 싶으신가요?</p>
       <div className={`${style.inputBox} flex items-center`}>
-        <input
-          type="text"
-          value={keyword}
-          onChange={(e) => setKeyword(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-          onFocus={() => setIsFocused(true)}
-          onBlur={() => setIsFocused(false)}
-          placeholder={isFocused ? '' : placeholder}
-          className={`${style.input} flex-1`}
-        />
-
-        <div className="mr-5 h-12 border-r border-gray-300"></div>
+        {/* 입력 필드와 첫 번째 구분선 */}
+        <div className="ml-[0.5rem] flex min-w-0 flex-1 items-center">
+          <input
+            type="text"
+            value={keyword}
+            onChange={(e) => setKeyword(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+            onFocus={() => setIsFocused(true)}
+            onBlur={() => setIsFocused(false)}
+            placeholder={isFocused ? '' : placeholder}
+            className={style.input}
+          />
+          <div className="h-8 border-r border-gray-300"></div>
+        </div>
 
         {/* PC/Tablet 전용 */}
-        <div className="hidden gap-4 md:flex">
+        <div className="mr-[4rem] hidden items-center gap-1 md:flex">
           {/* 지역 */}
-          <div className="flex min-w-[8rem] items-center">
+          <div className="flex items-center gap-1">
             <Dropdown
               trigger={
-                <button type="button" className={dropdownBtnClass}>
-                  <span>{region || '지역'}</span>
+                <button
+                  type="button"
+                  className={`${dropdownBtnClass} max-w-[12rem] min-w-[5rem]`}
+                >
+                  <span className="text-gray-700 md:text-[1.6rem]">
+                    {region || '지역'}
+                  </span>
                 </button>
               }
               dropdownClassName={dropdownMenuClass}
@@ -128,21 +135,26 @@ const Search: React.FC<SearchProps> = ({
               <button
                 type="button"
                 onClick={() => setRegion('')}
-                className="text-gray-400 hover:text-gray-600"
+                className="p-1 text-gray-700 hover:text-gray-600"
               >
-                <X className="size-6" />
+                <X className="size-4" />
               </button>
             )}
           </div>
 
-          <div className="mr-5 h-12 border-r border-gray-300"></div>
+          <div className="mx-1 h-8 border-r border-gray-300"></div>
 
           {/* 카테고리 */}
-          <div className="flex min-w-[8rem] items-center">
+          <div className="flex items-center gap-1">
             <Dropdown
               trigger={
-                <button type="button" className={dropdownBtnClass}>
-                  <span>{category || '카테고리'}</span>
+                <button
+                  type="button"
+                  className={`${dropdownBtnClass} max-w-[10rem] min-w-[5rem]`}
+                >
+                  <span className="text-gray-700 md:text-[1.6rem]">
+                    {category || '카테고리'}
+                  </span>
                 </button>
               }
               dropdownClassName={dropdownMenuClass}
@@ -167,29 +179,31 @@ const Search: React.FC<SearchProps> = ({
               <button
                 type="button"
                 onClick={() => setCategory('')}
-                className="text-gray-400 hover:text-gray-600"
+                className="p-1 text-gray-400 hover:text-gray-600"
               >
-                <X className="size-6" />
+                <X className="size-4" />
               </button>
             )}
           </div>
 
-          <div className="h-12 border-r border-gray-300"></div>
+          <div className="mx-2 h-8 border-r border-gray-300"></div>
         </div>
 
         {/* Mobile 전용 */}
-        <div className="flex md:hidden">
+        <div className="relative flex md:hidden">
           <Dropdown
             trigger={
               <button
-                className={`${dropdownBtnClass} flex max-w-[20rem] items-center gap-2 overflow-hidden text-ellipsis whitespace-nowrap`}
+                className={`${dropdownBtnClass} flex max-w-[14rem] items-center gap-2 px-3 py-2`}
               >
                 {/* 지역 */}
-                <span className="flex items-center gap-1">
-                  {region || '지역'}
+                <span className="flex items-center gap-1 text-sm">
+                  <span className="truncate text-gray-700">
+                    {region || '지역'}
+                  </span>
                   {region && (
                     <X
-                      className="size-4 text-gray-400 hover:text-gray-600"
+                      className="size-3 flex-shrink-0 text-gray-400 hover:text-gray-600"
                       onClick={(e) => {
                         e.stopPropagation();
                         setRegion('');
@@ -197,13 +211,15 @@ const Search: React.FC<SearchProps> = ({
                     />
                   )}
                 </span>
-                <span>/</span>
+                <span className="text-gray-500">/</span>
                 {/* 카테고리 */}
-                <span className="flex items-center gap-1">
-                  {category || '카테고리'}
+                <span className="flex items-center gap-1 text-sm">
+                  <span className="truncate text-gray-700">
+                    {category || '카테고리'}
+                  </span>
                   {category && (
                     <X
-                      className="size-4 text-gray-400 hover:text-gray-600"
+                      className="size-3 flex-shrink-0 text-gray-400 hover:text-gray-600"
                       onClick={(e) => {
                         e.stopPropagation();
                         setCategory('');
@@ -213,12 +229,14 @@ const Search: React.FC<SearchProps> = ({
                 </span>
               </button>
             }
-            dropdownClassName="fixed top-[38rem] right-[4rem] mt-2 w-[30rem] bg-white rounded-xl shadow-lg border border-gray-100 p-4 grid grid-cols-2 gap-4 txt-14-medium"
+            dropdownClassName="absolute top-full right-[-2rem] mt-2 w-[calc(100vw-2rem)] max-w-[30rem] bg-white rounded-xl shadow-lg border border-gray-100 p-4 grid grid-cols-2 gap-4 txt-14-medium z-50"
           >
             {(close) => (
               <>
                 <div>
-                  <p className="txt-14-medium px-1 py-2 text-gray-600">지역</p>
+                  <p className="px-1 py-2 text-[1.4rem] font-medium text-gray-600">
+                    지역
+                  </p>
                   <div className="flex flex-col space-y-1">
                     {regionOptions.map((option) => (
                       <button
@@ -262,7 +280,7 @@ const Search: React.FC<SearchProps> = ({
         <button
           type="button"
           onClick={handleSearch}
-          className="bg-main flex h-[3rem] w-[3rem] items-center justify-center rounded-full text-white transition-colors hover:bg-blue-600 md:h-[5rem] md:w-[5rem]"
+          className="bg-main flex h-[3.7rem] w-[3.7rem] flex-shrink-0 items-center justify-center rounded-full text-white transition-colors hover:bg-blue-600 md:h-[5rem] md:w-[5rem]"
         >
           <SearchIcon className="h-5 w-5 md:h-6 md:w-6" />
         </button>
