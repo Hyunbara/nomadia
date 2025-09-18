@@ -3,8 +3,10 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { ReactNode, useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 
+import LoadingSpinner from '@/shared/components/loading-spinner/loading-spinner';
 import ModalContent from '@/shared/components/modal/components/modal-content';
 import { useKeydownEsc } from '@/shared/components/modal/libs/hooks/useKeydownEsc';
+import { useLockBodyScroll } from '@/shared/components/modal/libs/hooks/useLockBodyScroll';
 import { useModalStore } from '@/shared/components/modal/libs/stores/useModalStore';
 
 /**
@@ -28,6 +30,7 @@ const BasicModal = ({
   const { isModalOpen, closeModal, setModalType } = useModalStore();
   const [isIconLoaded, setIsIconLoaded] = useState(false);
   useKeydownEsc(closeModal, isModalOpen, isIconLoaded);
+  useLockBodyScroll(isModalOpen);
 
   // 마운트 시 전역 타입 등록 - modal-button, modal-header에서 사용
   useEffect(() => {
@@ -38,7 +41,10 @@ const BasicModal = ({
 
   //warning 이미지를 미리 캐시에 로드
   useEffect(() => {
-    if (type !== 'warning') setIsIconLoaded(true);
+    if (type !== 'warning') {
+      setIsIconLoaded(true);
+      return;
+    }
     const img = new window.Image();
     img.src = '/images/warning.svg';
     img.onload = () => {
@@ -64,7 +70,7 @@ const BasicModal = ({
             transition={{ duration: 0.2, ease: 'easeInOut' }}
           >
             {/* 모달 */}
-            {isIconLoaded && (
+            {isIconLoaded ? (
               <motion.div
                 initial={{ scale: 0.8 }}
                 animate={{ scale: 1 }}
@@ -74,6 +80,8 @@ const BasicModal = ({
                   {children}
                 </ModalContent>
               </motion.div>
+            ) : (
+              <LoadingSpinner />
             )}
           </motion.div>
         </>

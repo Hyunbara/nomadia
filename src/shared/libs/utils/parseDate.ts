@@ -1,23 +1,37 @@
-import { Schedule } from '@/shared/types/activity';
-
 /**
- * @description 날짜 문자열을 Date 객체로 변환합니다. (ex. "2025.07.28" -> "2025-07-28")
- *
- * @author 김영현
- * @param date 날짜 문자열
- * @returns Date 객체
+ * 날짜 문자열을 Date 객체로 변환합니다.
+ * @param date 날짜 문자열 (YYYY-MM-DD 또는 YYYY.MM.DD 형식)
+ * @returns Date 객체 (유효하지 않은 경우 new Date(0) 반환)
  */
 export const parseDate = (date: string) => {
-  const normalizedDate = date.replace(/\./g, '-');
-  const parsed = new Date(normalizedDate);
+  if (!date) return new Date(0);
 
-  return isNaN(parsed.getTime()) ? new Date(0) : parsed;
+  // 점(.)을 하이픈(-)으로 변환하여 YYYY-MM-DD 형식으로 정규화
+  const normalizedDate = date.replace(/\./g, '-');
+  const parts = normalizedDate.split('-');
+
+  if (parts.length !== 3) return new Date(0);
+
+  const [year, month, day] = parts.map(Number);
+
+  // 유효성 검사
+  if (isNaN(year) || isNaN(month) || isNaN(day)) return new Date(0);
+  if (month < 1 || month > 12 || day < 1 || day > 31) return new Date(0);
+
+  const parsed = new Date(year, month - 1, day);
+  if (isNaN(parsed.getTime())) return new Date(0);
+
+  // 라운드트립 체크: 원본 입력과 변환된 날짜가 일치하는지 확인
+  const yearStr = parsed.getFullYear().toString();
+  const monthStr = String(parsed.getMonth() + 1).padStart(2, '0');
+  const dayStr = String(parsed.getDate()).padStart(2, '0');
+  const roundTripDate = `${yearStr}-${monthStr}-${dayStr}`;
+
+  return normalizedDate === roundTripDate ? parsed : new Date(0);
 };
 
 /**
- * @description 날짜 문자열 배열을 오름차순으로 정렬합니다.
- *
- * @author 김영현
+ * 날짜 문자열 배열을 오름차순으로 정렬합니다.
  * @param dates 날짜 문자열 배열
  * @returns 정렬된 날짜 문자열 배열
  */
@@ -30,55 +44,44 @@ export const sortDatesAscending = (dates: string[]): string[] => {
 };
 
 /**
- * @description 날짜 문자열 배열을 내림차순으로 정렬합니다.
- *
- * @author 김영현
- * @param dates 날짜 문자열 배열
- * @returns 정렬된 날짜 문자열 배열
+ * 내일 날짜를 YYYY-MM-DD 형식의 문자열로 반환합니다.
+ * @returns 내일 날짜 문자열 (예: "2025-08-28")
  */
-export const sortDatesDescending = (dates: string[]): string[] => {
-  return [...dates].sort((a, b) => {
-    const dateA = parseDate(a);
-    const dateB = parseDate(b);
-    return dateB.getTime() - dateA.getTime();
-  });
-};
-
-/**
- * @description 오늘 날짜를 YYYY-MM-DD 형식의 문자열로 반환합니다.
- *
- * @author 김영현
- * @returns 오늘 날짜 문자열 (예: "2024-01-15")
- */
-export const getTodayDateString = (): string => {
+export const getTomorrowDateString = (): string => {
   const today = new Date();
-  const year = today.getFullYear();
-  const month = String(today.getMonth() + 1).padStart(2, '0');
-  const day = String(today.getDate()).padStart(2, '0');
+  const tomorrow = new Date(
+    today.getFullYear(),
+    today.getMonth(),
+    today.getDate() + 1,
+  );
+
+  const year = tomorrow.getFullYear();
+  const month = String(tomorrow.getMonth() + 1).padStart(2, '0');
+  const day = String(tomorrow.getDate()).padStart(2, '0');
+
   return `${year}-${month}-${day}`;
 };
 
 /**
- * @description 스케줄 배열에서 같은 날짜에 중복된 시작 시간이 있는지 검증합니다.
- *
- * @author 김영현
- * @param schedules 스케줄 배열
- * @returns 중복된 시간이 있으면 true, 없으면 false
+ * 날짜가 내일 이후인지 검증합니다.
+ * @param dateString YYYY-MM-DD 형식의 날짜 문자열
+ * @returns 내일 이후인 경우 true, 그렇지 않으면 false
  */
-export const hasDuplicateStartTime = (schedules: Schedule[]): boolean => {
-  const dateTimeMap = new Map<string, Set<string>>();
+export const isDateAfterTomorrow = (dateString: string): boolean => {
+  if (!dateString) return false;
 
-  for (const schedule of schedules) {
-    if (!schedule.date || !schedule.startTime) continue;
+  const selectedDate = parseDate(dateString);
+  if (selectedDate.getTime() === new Date(0).getTime()) return false;
 
-    if (!dateTimeMap.has(schedule.date)) {
-      dateTimeMap.set(schedule.date, new Set());
-    }
-    const timeSet = dateTimeMap.get(schedule.date)!;
-    if (timeSet.has(schedule.startTime)) {
-      return true; // 중복 발견
-    }
-    timeSet.add(schedule.startTime);
-  }
-  return false;
+  const tomorrowString = getTomorrowDateString();
+  const [tomorrowYear, tomorrowMonth, tomorrowDay] = tomorrowString
+    .split('-')
+    .map(Number);
+  const tomorrow = new Date(tomorrowYear, tomorrowMonth - 1, tomorrowDay);
+
+  // 시간을 00:00:00으로 설정하여 날짜만 비교
+  selectedDate.setHours(0, 0, 0, 0);
+  tomorrow.setHours(0, 0, 0, 0);
+
+  return selectedDate >= tomorrow;
 };

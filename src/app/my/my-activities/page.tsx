@@ -4,21 +4,25 @@ import Link from 'next/link';
 
 import { DeleteConfirmModal } from '@/features/my/my-activities/components/delete-confirm-modal';
 import { MyActivitiesList } from '@/features/my/my-activities/components/my-activities-list';
+import { useModalStore } from '@/shared/components';
 
 const MyActivityPage = () => {
+  const { modalName } = useModalStore();
   return (
     <>
       {/* 페이지 헤더 */}
       <div className="mb-[2rem] flex items-start justify-between py-[1rem] md:mb-[2.4rem]">
         <header className="flex flex-col gap-[0.4rem]">
-          <h1 className="text-[1.8rem] font-bold text-gray-950">내 체험관리</h1>
+          <h1 className="text-[1.8rem] font-bold text-gray-950">
+            내 체험 관리
+          </h1>
           <span className="text-[1.4rem] font-medium text-gray-500">
             체험을 등록하거나 수정 및 삭제가 가능합니다.
           </span>
         </header>
         <Link
           href="/my/my-activities/activity-registration"
-          className="md:bg-main flex cursor-pointer items-center justify-center rounded-[1.4rem] text-[1.2rem] font-bold text-white transition-colors md:h-[4.8rem] md:w-[13.8rem] md:text-[1.6rem] md:hover:bg-blue-500"
+          className="md:bg-main btn-action-blue flex cursor-pointer items-center justify-center rounded-[1.4rem] text-[1.2rem] font-bold text-white transition-colors md:h-[4.8rem] md:w-[13.8rem] md:text-[1.6rem]"
         >
           <span className="block md:hidden">
             <Image
@@ -35,7 +39,7 @@ const MyActivityPage = () => {
       {/* 내 체험 리스트 */}
       <MyActivitiesList />
       {/* 삭제 확인 모달 */}
-      <DeleteConfirmModal />
+      {modalName === 'delete' && <DeleteConfirmModal />}
     </>
   );
 };

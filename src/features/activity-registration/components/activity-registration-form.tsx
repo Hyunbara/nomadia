@@ -19,21 +19,19 @@ import Modal from '@/shared/components/modal/components';
 import { useModalStore } from '@/shared/components/modal/libs/stores/useModalStore';
 import { ActivityRegistrationParams } from '@/shared/types/activity';
 
-// 기존 hasDuplicateStartTime 함수를 사용
-
 const registerSchema = z.object({
   title: z.string().min(1, { message: '제목을 입력해 주세요.' }),
   category: z.string().min(1, { message: '카테고리를 선택해 주세요.' }),
-  address: z.string().min(1, { message: '주소를 입력해주세요.' }),
   description: z.string().min(1, { message: '설명을 입력해 주세요.' }),
   price: z
-    .number()
+    .number({ message: '금액을 입력해 주세요.' })
     .min(FORM_CONSTRAINTS.PRICE.MIN, {
       message: `최소 ${FORM_CONSTRAINTS.PRICE.MIN}원 이상 입력해 주세요.`,
     })
     .max(FORM_CONSTRAINTS.PRICE.MAX, {
       message: `최대 ${FORM_CONSTRAINTS.PRICE.MAX.toLocaleString()}원 이하 입력해 주세요.`,
     }),
+  address: z.string().min(1, { message: '주소를 입력해 주세요.' }),
   schedules: z
     .array(
       z.object({
@@ -80,7 +78,7 @@ const ActivityRegistrationForm = () => {
   const router = useRouter();
   const { openModal, closeModal, modalName } = useModalStore();
 
-  // 실제 등록 로직을 별도 함수로 분리
+  // 실제 등록 로직
   const handleRegistration = async (data: FormData) => {
     // 모든 스케줄의 시간 유효성 검증
     const hasInvalidSchedules = data.schedules.some((schedule) => {
@@ -121,14 +119,12 @@ const ActivityRegistrationForm = () => {
   };
 
   const onSubmit = () => {
-    // 모달 열기
     openModal('registration-confirm');
   };
 
   // 모달 확인 버튼 핸들러
   const handleConfirmRegistration = async () => {
     closeModal();
-    // 실제 등록 로직 실행
     await handleRegistration(watch());
   };
 

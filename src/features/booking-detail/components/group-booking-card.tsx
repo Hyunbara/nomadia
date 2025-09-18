@@ -1,6 +1,9 @@
-import BookingCardContainer from '@/features/booking-detail/components/booking-card-container';
-import { Reservation } from '@/features/booking-detail/libs/types/booking';
+import React from 'react';
+
 import { sortDatesAscending } from '@/shared/libs/utils/parseDate';
+import { Reservation } from '@/shared/types/reservation';
+
+import BookingCardContainer from './booking-card-container';
 
 // 새로운 인터페이스
 interface GroupedBookingsProps {
@@ -13,6 +16,7 @@ interface GroupedBookingsProps {
  * @author 김영현
  * @param reservations 예약 정보
  */
+
 const GroupedBookingCards = ({ reservations }: GroupedBookingsProps) => {
   // 날짜별로 예약 그룹화
   const groupedReservations = reservations.reduce(

@@ -10,9 +10,10 @@ import type { Swiper as SwiperType } from 'swiper';
 import { Autoplay, Navigation } from 'swiper/modules';
 import { Swiper, SwiperSlide } from 'swiper/react';
 
-import { ErrorMessage } from '@/shared/components/error-message/error-message';
-import LoadingSpinner from '@/shared/components/loading-spinner/loading-spinner';
-import useActivity from '@/shared/libs/hooks/useActivityQuery';
+import { navigateToActivity } from '@/features/activities/libs/utils/navigation';
+import { ErrorMessage } from '@/shared/components';
+import { BannerSkeleton } from '@/shared/components/skeleton/skeleton';
+import useActivityQuery from '@/shared/libs/hooks/useActivityQuery';
 
 /**
  * 배너 캐러셀 컴포넌트
@@ -21,18 +22,42 @@ import useActivity from '@/shared/libs/hooks/useActivityQuery';
  * @description 배너 캐러셀을 표시하는 컴포넌트입니다.
  */
 const BannerCarousel = () => {
-  const router = useRouter();
   const swiperRef = useRef<SwiperType | null>(null);
-  const { data, isLoading, isError } = useActivity({
-    sort: 'most_reviewed',
-    page: 1,
-    size: 8,
-  });
-  const banners = data?.activities ?? [];
+  const isFetchingRef = useRef(false); // 중복 호출 방지를 위한 뮤텍스
+  const { data, isLoading, isError, hasNextPage, fetchNextPage } =
+    useActivityQuery({
+      sort: 'most_reviewed',
+      page: 1,
+      size: 4,
+    });
+
+  const router = useRouter();
+
+  const banners = data?.pages?.flatMap((page) => page.activities) ?? [];
+
+  const handleSlideChange = (swiper: SwiperType) => {
+    const currentIndex = swiper.realIndex;
+
+    if (
+      !isLoading && // 초기 로딩이 완료된 상태
+      banners.length > 0 && // 최소 1개 이상의 배너가 있는 상태
+      hasNextPage &&
+      currentIndex >= banners.length - 1 &&
+      !isFetchingRef.current &&
+      banners.length < 8 // 최대 8개까지만 로드 (2페이지)
+    ) {
+      isFetchingRef.current = true; // 뮤텍스 잠금
+
+      fetchNextPage().finally(() => {
+        // API 요청 완료 후 뮤텍스 해제
+        isFetchingRef.current = false;
+      });
+    }
+  };
 
   // 배너 클릭 시 액티비티 상세 페이지로 이동
   const handleBannerClick = (activityId: number) => {
-    router.push(`/activities/${activityId}`);
+    navigateToActivity(activityId, router);
   };
 
   return (
@@ -48,15 +73,12 @@ const BannerCarousel = () => {
         onBeforeInit={(swiper) => {
           swiperRef.current = swiper;
         }}
+        onSlideChange={handleSlideChange}
         breakpoints={{
           768: {
-            slidesPerView: 1,
-            slidesPerGroup: 1,
             spaceBetween: 24,
           },
           1024: {
-            slidesPerView: 1,
-            slidesPerGroup: 1,
             spaceBetween: 30,
           },
         }}
@@ -64,9 +86,7 @@ const BannerCarousel = () => {
       >
         {isLoading ? (
           <SwiperSlide>
-            <div className="flex h-[18.1rem] items-center justify-center md:h-[37.5rem] lg:h-[50rem]">
-              <LoadingSpinner />
-            </div>
+            <BannerSkeleton />
           </SwiperSlide>
         ) : isError ? (
           <SwiperSlide>
@@ -99,7 +119,8 @@ const BannerCarousel = () => {
                   fill
                   className="object-cover"
                   priority={idx === 0}
-                  quality={idx === 0 ? 85 : 75}
+                  quality={idx === 0 ? 60 : 50}
+                  loading={idx === 0 ? 'eager' : 'lazy'}
                   sizes="(max-width: 768px) 100vw, (max-width: 1024px) 100vw, 112rem"
                 />
                 <div className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-black/90 to-transparent p-2 transition-opacity duration-700 md:p-8 lg:p-12">

@@ -1,13 +1,14 @@
 import Image from 'next/image';
 import React from 'react';
 
+import { useModalStore } from '@/shared/components';
 import { formatPrice } from '@/shared/libs/utils/formatPrice';
 import {
   generateResponsiveSizes,
   optimizeImageQuality,
 } from '@/shared/libs/utils/imageOptimization';
+import { Reservation } from '@/shared/types/reservation';
 
-import { Reservation } from '../libs/types/booking';
 import {
   formatBookingTime,
   getStatusColorClass,
@@ -29,15 +30,8 @@ interface BookingCardProps {
 
 /**
  * 예약 카드 UI 컴포넌트 - 순수한 렌더링만 담당
- * @description 예약 카드 UI 컴포넌트 - 순수한 렌더링만 담당
+ * @description 예약 카드 UI 컴포넌트
  * @author 김영현
- * @param reservation 예약 정보
- * @param showDate 날짜 표시 여부
- * @param showDivider 구분선 표시 여부
- * @param isModalOpen 모달 열림 여부
- * @param onCancelClick 예약 취소 클릭 시 콜백
- * @param onReviewClick 후기 작성 클릭 시 콜백
- * @param onModalClose 모달 닫기 시 콜백
  */
 const BookingCard = ({
   reservation,
@@ -52,6 +46,7 @@ const BookingCard = ({
   const statusLabel = getStatusLabel(reservation.status);
   const statusColorClass = getStatusColorClass(reservation.status);
   const time = formatBookingTime(reservation.startTime, reservation.endTime);
+  const { modalName } = useModalStore();
 
   return (
     <div className="flex w-full max-w-[50rem] flex-col gap-[1.2rem] lg:max-w-[60rem]">
@@ -81,7 +76,6 @@ const BookingCard = ({
           />
         </div>
 
-        {/* 흰색 카드 - 세밀한 브레이크포인트 추가 */}
         <div className="relative flex h-full w-[70%] flex-col justify-between gap-[0.8rem] rounded-[2.4rem] bg-white px-[2.2rem] py-[2rem] min-[470px]:w-[75%] sm:w-[75%] md:w-[75%]">
           {/* 상단 정보 영역 */}
           <div className="mb-[0.2rem] flex w-full flex-col">
@@ -123,12 +117,14 @@ const BookingCard = ({
       {showDivider && <div className="mt-[3rem] h-[1px] w-full bg-gray-50" />}
 
       {/* 모달 */}
-      <BookingModal
-        reservation={reservation}
-        statusLabel={statusLabel}
-        isOpen={isModalOpen}
-        onClose={onModalClose || (() => {})}
-      />
+      {modalName === 'delete-review-modal' && (
+        <BookingModal
+          reservation={reservation}
+          statusLabel={statusLabel}
+          isOpen={isModalOpen}
+          onClose={onModalClose || (() => {})}
+        />
+      )}
     </div>
   );
 };

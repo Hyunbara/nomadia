@@ -12,9 +12,8 @@ const MyActivitiesCard = ({ activity }: MyActivitiesCardProps) => {
   const router = useRouter();
 
   const handleDelete = () => {
-    console.log(typeof activity.id);
     setActivityId(activity.id);
-    openModal();
+    openModal('delete');
   };
 
   const hadnleEdit = () => {

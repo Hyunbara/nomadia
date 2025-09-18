@@ -8,7 +8,7 @@ import { toast } from 'sonner';
 
 import { FormInput } from '@/shared/components/form-input/form-input';
 
-import { signup as apiSignup } from '../../api/auth.api';
+import { signup } from '../../api/auth.api';
 import { SignupFormType, signupSchema } from '../../validators/auth.schema';
 
 export const SignupForm = () => {
@@ -26,8 +26,7 @@ export const SignupForm = () => {
 
   const onSubmit: SubmitHandler<SignupFormType> = async (data) => {
     try {
-      const response = await apiSignup(data);
-      console.log(response);
+      await signup(data);
       toast.success('회원가입 성공');
       router.push('./login');
     } catch (error) {
@@ -37,7 +36,7 @@ export const SignupForm = () => {
           message: '이미 사용중인 이메일입니다.',
         });
       } else {
-        toast.error('회원가입 중 오류가 발생했습니다.');
+        alert('회원가입 중 오류가 발생했습니다.');
       }
     }
   };

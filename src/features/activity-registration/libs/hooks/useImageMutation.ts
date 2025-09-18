@@ -53,9 +53,11 @@ export const validateImageFile = (
   // 파일 크기 검사 (MB 단위)
   const fileSizeInMB = file.size / (1024 * 1024);
   if (fileSizeInMB > maxSize) {
+    const errorMessage = `파일 크기는 ${maxSize}MB 이하여야 합니다. (현재: ${fileSizeInMB.toFixed(1)}MB)`;
+    alert(errorMessage);
     return {
       isValid: false,
-      error: `파일 크기는 ${maxSize}MB 이하여야 합니다. (현재: ${fileSizeInMB.toFixed(1)}MB)`,
+      error: errorMessage,
     };
   }
 
@@ -81,8 +83,6 @@ export const useImageUploadMutation = (
       onSuccess?.(data);
     },
     onError: (error) => {
-      console.error('이미지 업로드 실패:', error);
-      toast.error('이미지 업로드에 실패했습니다. 다시 시도해주세요.');
       onError?.(error);
     },
   });

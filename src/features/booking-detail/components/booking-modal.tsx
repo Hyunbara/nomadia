@@ -1,13 +1,12 @@
 import { X } from 'lucide-react';
 import React, { useState } from 'react';
-import { toast } from 'sonner';
 
 import Modal from '@/shared/components/modal/components';
 import { useModalStore } from '@/shared/components/modal/libs/stores/useModalStore';
+import { Reservation } from '@/shared/types/reservation';
 
 import { useCancelMutation } from '../libs/hooks/useCancelMutation';
 import { usePostReviewMutation } from '../libs/hooks/usePostReviewMutation';
-import { Reservation } from '../libs/types/booking';
 import StarRating from './star-rating';
 
 interface BookingModalProps {
@@ -67,12 +66,12 @@ const BookingModal = ({
   // 리뷰 작성 모달에서 작성하기 버튼 클릭 시
   const handleModalPostReview = () => {
     if (reviewRating === 0) {
-      toast.error('별점을 선택해주세요.');
+      alert('별점을 선택해주세요.');
       return;
     }
 
     if (review.trim().length === 0) {
-      toast.error('리뷰를 입력해주세요.');
+      alert('리뷰를 입력해주세요.');
       return;
     }
 
@@ -91,7 +90,7 @@ const BookingModal = ({
       type={statusLabel === '예약 신청' ? 'warning' : 'custom'}
       extraClassName={
         statusLabel === '체험 완료'
-          ? 'w-full h-[47.9rem] mx-[2.4rem] md:w-[50rem] md:h-[54.9rem]'
+          ? 'w-full h-[47.9rem]  md:w-[50rem] md:h-[54.9rem]'
           : ''
       }
     >

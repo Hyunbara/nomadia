@@ -1,15 +1,15 @@
 'use client';
 
-import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
 
 import { ErrorMessage } from '@/shared/components/error-message/error-message';
-import LoadingSpinner from '@/shared/components/loading-spinner/loading-spinner';
+import NoData from '@/shared/components/no-data/no-data';
+import { BookingCardSkeleton } from '@/shared/components/skeleton/skeleton';
 import { sortDatesAscending } from '@/shared/libs/utils/parseDate';
 
 import { useBookingQuery } from '../libs/hooks/useBookingQuery';
-import { GetBookingResponse } from '../libs/types/booking';
+import { GetBookingResponse, Reservation } from '../libs/types/booking';
 import FilterButtons from './filter-buttons';
 import GroupedBookingCards from './group-booking-card';
 
@@ -18,6 +18,7 @@ import GroupedBookingCards from './group-booking-card';
  * @description 예약 목록 컴포넌트
  * @author 김영현
  */
+
 const BookingList = () => {
   const { data, isLoading, isError } = useBookingQuery() as {
     data: GetBookingResponse | undefined;
@@ -26,9 +27,23 @@ const BookingList = () => {
   };
   const [activeStatus, setActiveStatus] = useState('');
 
+  const filterPastBookings = (reservations: Reservation[]) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    return reservations.filter((reservation) => {
+      if (reservation.status === 'pending') {
+        const reservationDate = new Date(reservation.date);
+        reservationDate.setHours(0, 0, 0, 0);
+        return reservationDate >= today;
+      }
+      return true;
+    });
+  };
+
   // 날짜 기준 오름차순 정렬
   const sortedReservations = data?.reservations
-    ? [...data.reservations].sort((a, b) => {
+    ? filterPastBookings(data.reservations).sort((a, b) => {
         const sortedDates = sortDatesAscending([a.date, b.date]);
         return sortedDates[0] === a.date ? -1 : 1;
       })
@@ -41,18 +56,10 @@ const BookingList = () => {
   // 예약 내역이 없을 때
   if (data && data.reservations.length === 0) {
     return (
-      <div className="flex-center mt-[6rem] mb-[14.9rem] h-[40rem] w-full flex-col gap-[3rem] px-[2rem] md:mb-[47.2rem] lg:mb-[37rem]">
-        <Image
-          src="/images/sad-laptop.svg"
-          alt="Sad laptop"
-          width={246}
-          height={200}
-        />
-        <p className="text-[1.8rem] font-medium text-gray-600">
-          아직 예약한 체험이 없어요.
-        </p>
+      <div className="flex-center flex w-full flex-col gap-[2rem]">
+        <NoData message="아직 예약한 체험이 없어요." />
         <Link href="/activities">
-          <button className="bg-main w-[18.2rem] cursor-pointer rounded-[1.6rem] px-[4rem] py-[1.4rem] text-[1.6rem] font-semibold text-white hover:opacity-90">
+          <button className="bg-main btn-action-blue w-[18.2rem] cursor-pointer rounded-[1.6rem] px-[4rem] py-[1.4rem] text-[1.6rem] font-semibold text-white">
             체험 찾기
           </button>
         </Link>
@@ -65,23 +72,11 @@ const BookingList = () => {
       <FilterButtons active={activeStatus} onChange={setActiveStatus} />
       <div className="flex flex-col gap-[2rem]">
         {isLoading ? (
-          <div className="flex-center h-[16rem]">
-            <LoadingSpinner />
-          </div>
+          <BookingCardSkeleton />
         ) : isError ? (
           <ErrorMessage />
         ) : filteredBookings.length === 0 ? (
-          <div className="flex-center flex-col gap-[1.6rem]">
-            <Image
-              src="/images/sad-laptop.svg"
-              alt="Sad laptop"
-              width={182}
-              height={182}
-            />
-            <p className="text-[1.6rem] font-medium text-gray-600">
-              조건에 맞는 예약 내역이 없어요.
-            </p>
-          </div>
+          <NoData message="조건에 맞는 예약 내역이 없어요." />
         ) : (
           <GroupedBookingCards reservations={filteredBookings} />
         )}

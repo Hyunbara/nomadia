@@ -11,6 +11,7 @@ export type DisplayReservation = {
   status: 'pending' | 'confirmed' | 'declined';
   startTime: string;
   endTime: string;
+  date: string;
 };
 
 interface ContentReservationProps {
@@ -65,15 +66,21 @@ export const ContentReservation: React.FC<ContentReservationProps> = ({
                   'pending',
                 startTime: r.startTime,
                 endTime: r.endTime,
+                date: r.date,
               })),
             ),
         );
-        setReservations(allReservations);
 
-        // 모든 시간대 목록
+        const onlySelectedDate = allReservations.filter(
+          (r) => r.date.split('T')[0] === selectedDate,
+        );
+
+        setReservations(onlySelectedDate);
+
+        // 시간 슬롯 리스트 생성
         const slots = [
           ...new Set(
-            allReservations.map((r) => `${r.startTime} - ${r.endTime}`),
+            onlySelectedDate.map((r) => `${r.startTime} - ${r.endTime}`),
           ),
         ];
         setSelectedTimeSlot((prev) => prev ?? slots[0] ?? null);
@@ -194,18 +201,24 @@ export const ContentReservation: React.FC<ContentReservationProps> = ({
       </div>
 
       <div className="mb-6">
-        <div className="txt-14-bold mb-1 block">예약 시간</div>
-        <select
-          className="txt-14-medium h-[4.4rem] w-full rounded-2xl border p-4"
-          value={selectedTimeSlot ?? ''}
-          onChange={(e) => setSelectedTimeSlot(e.target.value || null)}
-        >
-          {timeSlots.map((timeSlot) => (
-            <option key={timeSlot} value={timeSlot}>
-              {timeSlot}
-            </option>
-          ))}
-        </select>
+        <div className="txt-14-bold mb-1">예약 시간</div>
+        <div className="relative">
+          <select
+            className="txt-14-medium h-[4.4rem] w-full appearance-none rounded-2xl border p-4 pr-10"
+            value={selectedTimeSlot ?? ''}
+            onChange={(e) => setSelectedTimeSlot(e.target.value || null)}
+          >
+            {timeSlots.map((slot) => (
+              <option key={slot} value={slot}>
+                {slot}
+              </option>
+            ))}
+          </select>
+          {/* 드롭다운 아이콘 */}
+          <span className="pointer-events-none absolute top-1/2 right-7 -translate-y-1/2">
+            ▼
+          </span>
+        </div>
       </div>
 
       <div>
@@ -224,24 +237,41 @@ export const ContentReservation: React.FC<ContentReservationProps> = ({
               {activeTab === 'pending' && (
                 <div className="flex flex-col space-y-2">
                   <button
-                    className="txt-12-medium rounded border px-3 py-1"
+                    className="txt-12-medium rounded-full border px-3 py-1 transition-colors hover:border-[#DDF9F9] hover:bg-[#DDF9F9]"
                     onClick={() => handleStatusChange(id, 'confirmed')}
                   >
                     승인하기
                   </button>
                   <button
-                    className="txt-12-medium rounded border px-3 py-1 text-sm"
+                    className="txt-12-medium rounded-full border px-3 py-1 transition-colors hover:border-[#FCECEA] hover:bg-[#FCECEA]"
                     onClick={() => handleStatusChange(id, 'declined')}
                   >
                     거절하기
                   </button>
                 </div>
               )}
+
+              {activeTab === 'confirmed' && (
+                <div>
+                  <button className="txt-12-medium rounded-full border border-[#DDF9F9] bg-[#DDF9F9] px-3 py-1 text-[#1790A0]">
+                    예약 승인
+                  </button>
+                </div>
+              )}
+              {activeTab === 'declined' && (
+                <div>
+                  <button className="txt-12-medium rounded-full border border-[#FCECEA] bg-[#FCECEA] px-3 py-1 text-[#F96767]">
+                    예약 거절
+                  </button>
+                </div>
+              )}
             </div>
           ))}
           {filteredReservations.length === 0 && (
-            <p className="text-center text-gray-500">
-              선택한 시간대에 해당 상태의 예약이 없습니다.
+            <p className="txt-16-medium mt-10 text-center text-gray-600">
+              선택한 예약 시간에는
+              <br />
+              신청중인 예약 내역이 없습니다.
             </p>
           )}
         </div>

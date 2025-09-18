@@ -12,24 +12,23 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 
 import { ActivityCard } from '@/features/activities/components/activity-card';
 import { ErrorMessage } from '@/shared/components/error-message/error-message';
-import LoadingSpinner from '@/shared/components/loading-spinner/loading-spinner';
-import useActivity from '@/shared/libs/hooks/useActivityQuery';
+import { AllActivitiesSkeletonGrid } from '@/shared/components/skeleton/skeleton';
+import useActivityQuery from '@/shared/libs/hooks/useActivityQuery';
 
 /**
  * 인기 체험 컴포넌트
  * @author 김영현
- * @returns 인기 체험 컴포넌트
+ * @description 인기 체험을 표시하는 컴포넌트입니다.
  */
 const BestActivities = () => {
   const swiperRef = useRef<SwiperType | null>(null);
 
-  const { data, isLoading, isError } = useActivity({
+  const { data, isLoading, isError } = useActivityQuery({
     sort: 'most_reviewed',
-    page: 1,
-    size: 8,
+    size: 6,
   });
 
-  const activities = data?.activities ?? [];
+  const activities = data?.pages?.flatMap((page) => page.activities) ?? [];
 
   const handlePrevSlide = () => {
     swiperRef.current?.slidePrev();
@@ -56,24 +55,24 @@ const BestActivities = () => {
         <div className="flex gap-2">
           <button
             onClick={handlePrevSlide}
-            className="hover:bg-sub-300 border-sub rounded-full border-1 bg-white p-2 transition-colors"
+            className="btn-action-carousel border-sub cursor-pointer rounded-full border bg-white p-2 transition-colors"
             aria-label="이전"
           >
-            <ChevronLeft className="text-main h-[1.8rem] w-[1.8rem] cursor-pointer md:h-[2.8rem] md:w-[2.8rem]" />
+            <ChevronLeft className="text-main h-[1.8rem] w-[1.8rem] md:h-[2.8rem] md:w-[2.8rem]" />
           </button>
           <button
             onClick={handleNextSlide}
-            className="hover:bg-sub-300 border-sub rounded-full border-1 bg-white p-2 transition-colors"
+            className="btn-action-carousel border-sub cursor-pointer rounded-full border bg-white p-2 transition-colors"
             aria-label="다음"
           >
-            <ChevronRight className="text-main h-[1.8rem] w-[1.8rem] cursor-pointer md:h-[2.8rem] md:w-[2.8rem]" />
+            <ChevronRight className="text-main h-[1.8rem] w-[1.8rem] md:h-[2.8rem] md:w-[2.8rem]" />
           </button>
         </div>
       </div>
       {/* 컨텐츠: 로딩/에러/데이터 분기 */}
       <div className="overflow-hidden px-0">
         {isLoading ? (
-          <LoadingSpinner />
+          <AllActivitiesSkeletonGrid />
         ) : isError ? (
           <ErrorMessage message="인기 체험을 불러오는 중 오류가 발생했습니다." />
         ) : (
@@ -82,14 +81,13 @@ const BestActivities = () => {
             autoplay={{
               delay: 5000,
               disableOnInteraction: false,
-              waitForTransition: true, // 전환 완료 후 다음 슬라이드
+              waitForTransition: true,
             }}
             spaceBetween={18}
             slidesPerView={2}
             slidesPerGroup={2}
             loop={true}
             speed={500}
-            // 성능 최적화 옵션 추가
             watchSlidesProgress={false}
             watchOverflow={false}
             onBeforeInit={(swiper) => {
@@ -109,12 +107,11 @@ const BestActivities = () => {
             }}
             className="best-activities !overflow-visible !px-0"
           >
-            {activities.map((activity, index) => (
+            {activities.map((activity) => (
               <SwiperSlide key={activity.id}>
                 <ActivityCard
                   activity={activity}
                   className="mb-[2.4rem] md:mb-[8rem]"
-                  isPriority={index < 4}
                 />
               </SwiperSlide>
             ))}
