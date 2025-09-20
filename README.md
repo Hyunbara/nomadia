@@ -15,7 +15,7 @@
 
 </div>
 <p align="center">
-배포 링크: https://nomadia-two.vercel.app/
+배포 링크: https://nomadia-chi.vercel.app/
 </p>
 
 <div align="center">
@@ -27,10 +27,13 @@
 ![회원가입_로그인_2배속](https://github.com/user-attachments/assets/27669840-8ad0-4cfc-895b-0731aa1e2e4e)
 
 #### 메인페이지 캐러셀
+![720메인화면캐러셀](https://github.com/user-attachments/assets/b17dec3e-09e8-4232-9e3d-0a0700a44ce3)
 
 #### 메인페이지 리스트
+![720메인화면리스트](https://github.com/user-attachments/assets/1f4caad9-f103-4c96-8440-f31d78bfff0c)
 
 #### 메인페이지 검색
+![720_검색](https://github.com/user-attachments/assets/9bd568fd-0818-4f25-9680-b763d3ad079c)
 
 ---
 
@@ -55,6 +58,7 @@ https://github.com/user-attachments/assets/e7392d86-01c6-4a3e-9dea-505839d868ca
 ![후기작성](https://github.com/user-attachments/assets/931a7f38-b350-4b6d-b31c-4f8784736b69)
 
 #### 마이페이지 내 예약 현황
+![720_예약현황](https://github.com/user-attachments/assets/1d081528-1a2c-4579-a421-138359d4aad6)
 
 ---
 
